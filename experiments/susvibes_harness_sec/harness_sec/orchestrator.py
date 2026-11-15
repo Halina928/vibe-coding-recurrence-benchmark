@@ -76,6 +76,9 @@ def run_episode(task: dict, cfg: dict, agent, repo_dir: str, out_dir: str,
     blocked, blocked_reason = False, ""
     for attempt in range(max_retries + 1):
         ctx.attempt = attempt
+        if os.environ.get("HARNESS_DEBUG_PROMPT"):
+            with open(os.path.join(out_dir, "prompt_attempt" + str(attempt) + ".txt"), "w", encoding="utf-8") as f:
+                f.write(prompt)
         t0 = time.time()
         reply = agent.run(ctx, prompt)
         dur = round(time.time() - t0, 1)
