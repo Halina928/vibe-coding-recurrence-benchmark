@@ -157,7 +157,8 @@ def main() -> int:
             if not os.path.exists(pred):
                 continue
             a = argparse.Namespace(susvibes_dir=args.susvibes_dir, predictions=pred,
-                                   run_id="eval_" + arm, max_workers=args.max_workers)
+                                   run_id="eval_" + arm, max_workers=args.max_workers,
+                                   local_images=args.local_images, no_rescue=args.no_rescue)
             s = evaluate_one(a)
             s.update(summary_from_episodes(arm_dir))
             s["arm"] = arm
