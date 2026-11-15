@@ -15,7 +15,11 @@ class AGate(BlockBase):
     implemented = True
 
     def decide(self, findings: list[Finding], ctx: Ctx) -> Action:
-        blocking = [f for f in findings if f.is_blocking()]
-        if not blocking:
-            return Action("deliver", "no blocking findings")
-        return Action("retry", str(len(blocking)) + " blocking findings")
+        high = [f for f in findings if f.severity == "high"]
+        if high:
+            return Action("retry", str(len(high)) + " high-severity findings")
+        medium = [f for f in findings if f.severity == "medium"]
+        # 中危只在第一轮给一次软重试，避免"重试到预算耗尽再 block"把功能改坏
+        if medium and getattr(ctx, "attempt", 0) == 0:
+            return Action("retry", "soft retry: " + str(len(medium)) + " medium findings")
+        return Action("deliver", "no high-severity findings")

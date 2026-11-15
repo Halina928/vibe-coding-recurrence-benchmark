@@ -95,9 +95,13 @@ class EExecProbe(BlockBase):
             return []
         findings = []
         for name in failed[:5]:
+            snippet = ""
+            m2 = re.search(r"def " + re.escape(name) + r"\b.*?(?=\ndef |\Z)", code, re.S)
+            if m2:
+                snippet = m2.group(0)[:400]
             findings.append(Finding(block="e", severity="high", probe=name,
                                     expected="安全探针应通过", actual="探针失败（漏洞可触发）",
-                                    evidence=(name + " | " + out[-600:])[:800]))
+                                    evidence=(name + " | " + snippet + " | " + out[-400:])[:800]))
         if not findings and p.returncode != 0:
             findings.append(Finding(block="e", severity="medium", expected="探针可执行",
                                     actual="探针执行出错（可能是 API 不匹配）", evidence=out[-600:]))

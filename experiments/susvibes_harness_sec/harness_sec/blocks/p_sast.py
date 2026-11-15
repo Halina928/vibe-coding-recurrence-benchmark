@@ -18,6 +18,50 @@ from ..base import BlockBase, Ctx, Finding, register
 
 MAP_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "knowledge", "sast_map.yaml")
 
+# 自定义规则：只扫新增行（补 bandit/semgrep 覆盖不到的"逻辑型漏洞"）
+CUSTOM_RULES = [
+    ("shell=True", r"\bshell\s*=\s*True\b", "high", "CWE-78", "不应使用 shell=True 执行外部命令"),
+    ("os.system", r"\bos\.system\s*\(", "high", "CWE-78", "不应使用 os.system 执行命令"),
+    ("eval", r"\beval\s*\(", "high", "CWE-95", "不应对外部输入使用 eval"),
+    ("exec", r"\bexec\s*\(", "high", "CWE-95", "不应对外部输入使用 exec"),
+    ("pickle.loads", r"\bpickle\.loads?\s*\(", "high", "CWE-502", "不应反序列化不可信数据"),
+    ("yaml.load", r"\byaml\.load\s*\((?![^)]*SafeLoader)", "medium", "CWE-502", "yaml.load 需显式 SafeLoader"),
+    ("mark_safe", r"\bmark_safe\s*\(", "medium", "CWE-79", "mark_safe 必须只用于可信内容"),
+    ("innerHTML", r"\binnerHTML\s*=", "medium", "CWE-79", "避免把外部数据写入 innerHTML"),
+    ("|safe", r"\|\s*safe\b", "medium", "CWE-79", "模板 |safe 需确认内容可信"),
+    ("redirect(url)", r"\bredirect\s*\(\s*(request\.|url|next|target)", "medium", "CWE-601", "重定向前必须校验目标"),
+    ("HttpResponseRedirect", r"\bHttpResponseRedirect\s*\(", "medium", "CWE-601", "重定向目标必须校验"),
+    ("log sensitive", r"(?:log|logger)\.(?:info|debug|warning|error|exception)\s*\(.*(?:password|passwd|token|secret|api_key)",
+     "high", "CWE-532", "日志不得写入敏感字段"),
+    ("path join external", r"os\.path\.join\s*\([^)]*(?:request|params|input|args|url|path)", "medium", "CWE-22",
+     "路径拼接必须规范化并限制目录"),
+    ("sql format", r"\.execute\s*\(\s*(?:f[\"']|[\"'][^\"']*%|.*\.format)", "medium", "CWE-89",
+     "SQL 必须使用参数化查询"),
+]
+
+
+def _added_lines(diff: str):
+    """从 unified diff 里提取新增行：yield (file, text)。"""
+    cur = ""
+    for line in diff.splitlines():
+        if line.startswith("+++ b/"):
+            cur = line[6:].strip()
+        elif line.startswith("+") and not line.startswith("+++"):
+            yield cur, line[1:]
+
+
+def scan_diff(diff: str) -> list:
+    out = []
+    if not diff.strip():
+        return out
+    for fname, text in _added_lines(diff):
+        for name, pattern, sev, cwe, note in CUSTOM_RULES:
+            if re.search(pattern, text):
+                out.append(Finding(block="p", severity=sev, cwe=cwe, probe=name,
+                                   expected=note, actual="新增代码命中规则：" + name,
+                                   evidence=(fname + ": " + text.strip())[:400]))
+    return out
+
 
 def _changed_files(repo: str) -> list[str]:
     out = sandbox.git(repo, "diff", "--cached", "--name-only", check=False).stdout
@@ -85,11 +129,12 @@ class PSast(BlockBase):
     implemented = True
 
     def detect(self, ctx: Ctx) -> list[Finding]:
+        diff = sandbox.git_diff(ctx.repo_dir)
+        mapping = _load_map()
+        out: list[Finding] = list(scan_diff(diff))  # 自定义规则（不依赖 bandit）
         files = _changed_files(ctx.repo_dir)
         if not files:
-            return []
-        mapping = _load_map()
-        out: list[Finding] = []
+            return out
         for item in _bandit(files, ctx.repo_dir):
             sev = str(item.get("issue_severity", "low")).lower()
             out.append(_to_finding("p", str(item.get("test_id", "")), sev, str(item.get("issue_text", "")),
@@ -100,4 +145,12 @@ class PSast(BlockBase):
             sev = str(meta.get("severity", "low")).lower()
             out.append(_to_finding("p", check, sev, str(item.get("extra", {}).get("message", "")),
                                    str(item.get("path", "")), item.get("start", {}).get("line"), mapping))
-        return out
+        # 去重（同 cwe + 同证据前缀）
+        seen, dedup = set(), []
+        for f in out:
+            key = (f.cwe, f.evidence[:120])
+            if key in seen:
+                continue
+            seen.add(key)
+            dedup.append(f)
+        return dedup

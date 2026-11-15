@@ -71,6 +71,7 @@ def run_episode(task: dict, cfg: dict, agent, repo_dir: str, out_dir: str,
         if art:
             sandbox.write_file(repo_dir, ".security/contracts.yaml", str(art))
             prompt = (contract.inject(ctx) or "") + "\n\n" + prompt
+            base_prompt = prompt  # 重试轮必须保留契约
 
     history, first_patch = [], ""
     blocked, blocked_reason = False, ""

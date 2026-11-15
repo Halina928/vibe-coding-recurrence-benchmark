@@ -9,6 +9,26 @@ from __future__ import annotations
 import os
 
 from ..base import BlockBase, Ctx, Finding, register
+
+_SEV = {"high": 0, "medium": 1, "low": 2}
+
+
+def filter_findings(findings: list[Finding], max_n: int | None = None) -> list[Finding]:
+    """去重（同 CWE+入口只留一条）并按严重度排序，最多保留 max_n 条。"""
+    import os
+    if max_n is None:
+        try:
+            max_n = int(os.environ.get("HARNESS_L2_MAX_FINDINGS", "3"))
+        except ValueError:
+            max_n = 3
+    seen, out = set(), []
+    for f in sorted(findings, key=lambda x: _SEV.get(x.severity, 9)):
+        key = (f.cwe, f.entry, f.evidence[:80])
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(f)
+    return out[:max_n]
 from .l1_self import review
 
 PROMPT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "prompts", "l2_review.md")
@@ -27,4 +47,5 @@ class L2Reviewer(BlockBase):
     implemented = True
 
     def detect(self, ctx: Ctx) -> list[Finding]:
-        return review(ctx, "l2", _load_prompt(), extra="\n请特别检查：授权/越权、输入未校验、输出未编码、敏感信息泄漏。\n")
+        got = review(ctx, "l2", _load_prompt(), extra="\n请特别检查：授权/越权、输入未校验、输出未编码、敏感信息泄漏。\n")
+        return filter_findings(got)
