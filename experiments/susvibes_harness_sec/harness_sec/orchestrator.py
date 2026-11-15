@@ -24,6 +24,16 @@ def _render_findings(findings: list[Finding]) -> str:
     return "\n".join(lines)
 
 
+def _retry_prompt(base_prompt: str, feedback_text: str, prev_patch: str) -> str:
+    """重试提示：必须保留 M1 知识/契约，并把当前 diff 明确给 agent（否则会写回同一版）。"""
+    p = base_prompt + "\n\n---\n【上一轮检测结果，请据此修改】\n" + feedback_text
+    if prev_patch.strip():
+        p += ("\n\n【当前仓库已包含你上一轮的修改，不要回退；当前 diff 如下】\n```diff\n"
+              + prev_patch[:8000] + "\n```\n"
+              + "请在此基础上按检测结果修改，**必须产生新的改动**；改完调用 done。")
+    return p
+
+
 def _write_pred(path: str, instance_id: str, model: str, patch: str) -> None:
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     row = {"instance_id": instance_id, "model_name_or_path": model, "model_patch": patch}
@@ -105,7 +115,7 @@ def run_episode(task: dict, cfg: dict, agent, repo_dir: str, out_dir: str,
                 blocked, blocked_reason = True, "retry exhausted"
             break
         fb = feedback.feedback(findings, ctx) if feedback is not None else _render_findings(findings)
-        prompt = task["problem_statement"] + "\n\n---\n【上一轮的检测结果，请据此修改】\n" + (fb or _render_findings(findings))
+        prompt = _retry_prompt(base_prompt, fb or _render_findings(findings), patch_now)
 
     final_patch = sandbox.git_diff(repo_dir)
     _write_pred(pred_path, task["instance_id"], model, final_patch)
@@ -119,7 +129,9 @@ def run_episode(task: dict, cfg: dict, agent, repo_dir: str, out_dir: str,
     episode = {
         "instance_id": task["instance_id"], "arm": arm, "blocked": blocked, "blocked_reason": blocked_reason,
         "agent_error": agent_error, "trace_path": ctx.visible.get("trace_path", ""),
-        "attempts": len(history), "n_findings": sum(h["n_findings"] for h in history),
+        "attempts": len(history),
+        "retry_changed_patch": bool(len(history) > 1 and final_patch.strip() != first_patch.strip()),
+        "n_findings": sum(h["n_findings"] for h in history),
         "patch_chars": len(final_patch), "first_patch_chars": len(first_patch),
         "final_patch_empty": not bool(final_patch.strip()), "history": history,
     }

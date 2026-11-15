@@ -3,21 +3,6 @@
 > 在 [SusVibes](https://github.com/LeiLiLab/susvibes) 之上新增的**机制层**：11 块可插拔安全机制积木 + 一条命令跑一组 + 官方 FuncPass/SecPass 评测。
 > **上游只读**：本仓库不改 SusVibes 任何文件；把 SusVibes clone 到旁边即可。
 
-## 本目录在团队仓库中的位置
-
-这是团队仓库的**第二条实验线**：
-
-| 实验线 | 位置 | 基准 | 回答 |
-|---|---|---|---|
-| 实验一（已有） | 根目录 `cases/` + `harness/` | 自建 6 个 CWE 场景 | 多轮修改中的**安全回归**（recurrence） |
-| **实验二（本目录）** | `experiments/susvibes_harness_sec/` | **SusVibes**（186 个真实仓库任务） | 11 个安全机制积木的 **8 臂/48 组组合**哪个有效 |
-
-两条线**互不影响**：本目录自成一体，不 import 根目录的 `harness/`，也不改 SusVibes 上游代码。
-额外依赖：外部 clone 的 SusVibes + Docker + 自己的 DeepSeek API key。
-
-> **状态（2026-11-14 冻结）**：目标任务集已冻结为 `data/tasks_8.json`（8 个 PASS/FAIL 任务，CWE 22/79/173/250+427/287/532/601/613）；代码与预算冻结在 `max_steps=60`。
-> 组员从 [`docs/TEAMWORK.md`](docs/TEAMWORK.md) 开始。
-
 ## 从哪开始（按顺序看）
 
 | 顺序 | 文件 | 给谁 |

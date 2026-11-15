@@ -39,7 +39,7 @@ def _load_map() -> dict:
 
 def _bandit(files: list[str], repo: str) -> list[dict]:
     if importlib.util.find_spec("bandit") is None:
-        print("[warn] p_sast: 未安装 bandit（pip install bandit），本次返回空")
+        print("[warn] p_sast: 未安装 bandit，本次 P 检测器返回空！请先在当前 Python 环境执行：pip install bandit")
         return []
     p = subprocess.run([sys.executable, "-m", "bandit", "-f", "json", "-q"] + files,
                        cwd=repo, capture_output=True, text=True, timeout=300)

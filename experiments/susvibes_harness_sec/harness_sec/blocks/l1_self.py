@@ -50,8 +50,11 @@ def review(ctx: Ctx, block: str, prompt: str, extra: str = "") -> list[Finding]:
     diff = sandbox.git_diff(ctx.repo_dir)
     if not diff.strip():
         return []
+    cwe = ",".join(ctx.meta.get("cwe_ids") or []) if isinstance(ctx.meta, dict) else ""
+    cwe_line = ("\n\n## 任务标注的 CWE\n" + cwe + "\n请对照该 CWE 的典型修复点，检查补丁是否遗漏。") if cwe else ""
     msg = (
         prompt
+        + cwe_line
         + "\n\n## 任务描述\n" + ctx.problem_statement[:4000]
         + "\n\n## 候选补丁（unified diff）\n```diff\n" + diff[:12000] + "\n```\n"
         + extra

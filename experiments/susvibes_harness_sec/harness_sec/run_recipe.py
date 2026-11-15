@@ -61,6 +61,8 @@ def main() -> int:
     ap.add_argument("--max-steps", type=int, default=0, help="0=用 configs 里的 params.max_steps（默认 60）")
     ap.add_argument("--keep-repo", action="store_true")
     ap.add_argument("--no-preflight", action="store_true", help="跳过 API key 预检")
+    ap.add_argument("--allow-missing-detector", action="store_true",
+                    help="检测器依赖缺失（如 bandit）时仍继续跑（结果会失真）")
     ap.add_argument("--resume", action="store_true", help="跳过已有 episode.json 的任务（断点续跑）")
     ap.add_argument("--task-timeout", type=int, default=1800,
                     help="单个任务的墙钟超时（秒，默认 1800=30 分钟；0=不限）")
@@ -105,6 +107,18 @@ def main() -> int:
     params = cfg.get("params") or {}
     max_steps = args.max_steps or int(params.get("max_steps", 60))
     print("[budget] max_steps=" + str(max_steps) + "（所有臂必须一致；改动=换一批实验）")
+    # 检测器依赖检查：P 块依赖 bandit，缺失时会静默返回空，必须先报错
+    m2 = cfg.get("m2")
+    m2_list = m2 if isinstance(m2, list) else ([m2] if m2 else [])
+    if "p" in m2_list:
+        import importlib.util as _ilu
+        if _ilu.find_spec("bandit") is None and not args.allow_missing_detector:
+            print("\n❌ 配置用到 P 检测器（bandit），但当前环境没装 bandit。")
+            print("   这会让 P 检测永远返回空，M2=p 的实验无效。")
+            print("   先执行： " + sys.executable + " -m pip install bandit")
+            print("   或加 --allow-missing-detector 强行跑（不推荐，数据会失真）。")
+            return 2
+
     if not args.dry_run and not args.no_preflight:
         from harness_sec import llm as _llm
         try:
