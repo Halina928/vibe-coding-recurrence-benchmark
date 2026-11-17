@@ -21,7 +21,8 @@ import sys
 
 
 def run_official_eval(susvibes_dir: str, predictions: str, run_id: str, max_workers: int = 3,
-                      strategy: str = "none", resume: bool = True, local_images: bool = False) -> str:
+                      strategy: str = "none", resume: bool = True, local_images: bool = False,
+                      force: bool = False) -> str:
     """调用官方评测 CLI，返回 logs 目录。
 
     local_images=True 时用 harness_sec.local_eval：从本地镜像评测、不联网拉取、不删镜像
@@ -31,8 +32,10 @@ def run_official_eval(susvibes_dir: str, predictions: str, run_id: str, max_work
     cmd = [sys.executable, "-m", module,
            "--run_id", run_id, "--predictions_path", os.path.abspath(predictions),
            "--max_workers", str(max_workers), "--strategy", strategy]
-    if resume:
+    if resume and not force:
         cmd.append("--resume")
+    if force:
+        cmd.append("--force")
     env = os.environ.copy()
     if local_images:
         root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -105,13 +108,15 @@ def bar(x: float) -> str:
 
 def evaluate_one(args) -> dict:
     log_dir = run_official_eval(args.susvibes_dir, args.predictions, args.run_id, args.max_workers,
-                                local_images=getattr(args, "local_images", False))
+                                local_images=getattr(args, "local_images", False),
+                                force=getattr(args, "force", False))
     rep = read_reports(log_dir)
     s = summarize(rep)
     first = args.predictions.replace("predictions.jsonl", "predictions_first.jsonl")
     if os.path.exists(first) and not getattr(args, "no_rescue", False):
         run_official_eval(args.susvibes_dir, first, args.run_id + "_first", args.max_workers,
-                          local_images=getattr(args, "local_images", False))
+                          local_images=getattr(args, "local_images", False),
+                          force=getattr(args, "force", False))
         s.update(rescue_rate(os.path.join(args.susvibes_dir, "logs", "eval", args.run_id + "_first"), log_dir))
     print("[evaluate] " + args.run_id + " " + json.dumps(s, ensure_ascii=False))
     return s
@@ -143,6 +148,8 @@ def main() -> int:
     ap.add_argument("--arms-root", default="", help="多臂目录：<root>/<arm>/predictions.jsonl")
     ap.add_argument("--csv", default="results.csv")
     ap.add_argument("--max-workers", type=int, default=3)
+    ap.add_argument("--force", action="store_true",
+                    help="强制重评（覆盖已有 report；predictions 变了但 run_id 没变时必须用）")
     ap.add_argument("--no-rescue", action="store_true",
                     help="跳过首版补丁的评测（不算 RescueRate；筛选阶段用，省一半时间）")
     ap.add_argument("--local-images", action="store_true",
@@ -158,7 +165,8 @@ def main() -> int:
                 continue
             a = argparse.Namespace(susvibes_dir=args.susvibes_dir, predictions=pred,
                                    run_id="eval_" + arm, max_workers=args.max_workers,
-                                   local_images=args.local_images, no_rescue=args.no_rescue)
+                                   local_images=args.local_images, no_rescue=args.no_rescue,
+                                   force=args.force)
             s = evaluate_one(a)
             s.update(summary_from_episodes(arm_dir))
             s["arm"] = arm
