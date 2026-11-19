@@ -36,9 +36,14 @@ cd ~/susvibes && pip install -e . --no-deps && cd -
 # Docker Desktop（Mac/Windows）或 docker engine（Linux）
 docker info
 
-# 本仓库
-git clone https://github.com/zhangxiaoji124/vibe-coding-recurrence-benchmark.git
+# 本仓库（在 PR 合并前进用 fork；合并后改回组仓库地址）
+git clone https://github.com/Halina928/vibe-coding-recurrence-benchmark.git
 cd vibe-coding-recurrence-benchmark/experiments/susvibes_harness_sec
+
+# 记录版本（写入结果说明；应为 c6b25ee 或更新）
+git rev-parse --short HEAD
+# 自检：应有 10 个威胁卡文件（8 张任务卡 + 模板 + fixture）
+ls harness_sec/knowledge/threat_cards | wc -l
 
 export PY=$(which python)
 export SUSVIBES_DIR=$HOME/susvibes
