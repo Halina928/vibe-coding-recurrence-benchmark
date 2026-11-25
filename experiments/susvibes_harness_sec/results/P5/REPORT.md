@@ -7,6 +7,10 @@ P5 负责反馈、修复循环与评测统计。已归档 2026-11-13 的原版�
 | 2026-11-13 原版 | 单一合成库存函数 `reserve(count)`，9 个机制组合 | 流程断言 **9/9** | [原版报告](../../../../results/P5/llm-security-review-2026-11-13/README.md) · [原始证据](../../../../results/P5/llm-security-review-2026-11-13/evidence.json) |
 | 2026-11-25 复评 | SusVibes 上游引擎，9 个自定义合成流程实例 | FuncPass **9/9**、SecPass **9/9**、Joint **9/9** | [复评报告](../../../../results/P5/llm-security-review-2026-11-13/susvibes-recheck-2026-11-25/README.md) · [评分 CSV](../../../../results/P5/llm-security-review-2026-11-13/susvibes-recheck-2026-11-25/scores.csv) · [汇总 JSON](../../../../results/P5/llm-security-review-2026-11-13/susvibes-recheck-2026-11-25/summary.json) · [DeepSeek 证据](../../../../results/P5/llm-security-review-2026-11-13/susvibes-recheck-2026-11-25/deepseek-evidence.json) |
 
+## 主实验归档状态
+
+P5 的 9 个配方与其他组共用 [8 个仓库任务](../../data/tasks_8.json)。仓库尚未归档这些组合的逐任务结果或官方评分。[完整实验报告](EXPERIMENT_REPORT.md)
+
 ## 复评逐项结果
 
 | 配方 | FuncPass | SecPass | Joint | 原始报告 |
