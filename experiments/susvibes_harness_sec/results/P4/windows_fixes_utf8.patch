@@ -1,0 +1,189 @@
+diff --git a/experiments/susvibes_harness_sec/harness_sec/blocks/e_exec.py b/experiments/susvibes_harness_sec/harness_sec/blocks/e_exec.py
+index 12f4c4c..a9e685a 100644
+--- a/experiments/susvibes_harness_sec/harness_sec/blocks/e_exec.py
++++ b/experiments/susvibes_harness_sec/harness_sec/blocks/e_exec.py
+@@ -77,7 +77,8 @@ class EExecProbe(BlockBase):
+         env["PYTHONPATH"] = ctx.repo_dir + (os.pathsep + env["PYTHONPATH"] if env.get("PYTHONPATH") else "")
+         try:
+             p = subprocess.run([sys.executable, "-m", "pytest", probe, "-q", "--no-header"],
+-                               cwd=ctx.repo_dir, capture_output=True, text=True, timeout=300, env=env)
++                               cwd=ctx.repo_dir, capture_output=True, text=True,
++                               encoding="utf-8", errors="replace", timeout=300, env=env)
+         except subprocess.TimeoutExpired:
+             return [Finding(block="e", severity="medium", expected="探针应能执行完成", actual="探针超时",
+                             evidence="pytest timeout 300s")]
+diff --git a/experiments/susvibes_harness_sec/harness_sec/blocks/p_sast.py b/experiments/susvibes_harness_sec/harness_sec/blocks/p_sast.py
+index 1972180..b7d6a6f 100644
+--- a/experiments/susvibes_harness_sec/harness_sec/blocks/p_sast.py
++++ b/experiments/susvibes_harness_sec/harness_sec/blocks/p_sast.py
+@@ -86,7 +86,8 @@ def _bandit(files: list[str], repo: str) -> list[dict]:
+         print("[warn] p_sast: 未安装 bandit，本次 P 检测器返回空！请先在当前 Python 环境执行：pip install bandit")
+         return []
+     p = subprocess.run([sys.executable, "-m", "bandit", "-f", "json", "-q"] + files,
+-                       cwd=repo, capture_output=True, text=True, timeout=300)
++                       cwd=repo, capture_output=True, text=True, encoding="utf-8",
++                       errors="replace", timeout=300)
+     try:
+         return (json.loads(p.stdout or "{}").get("results") or [])
+     except json.JSONDecodeError:
+@@ -97,7 +98,8 @@ def _semgrep(files: list[str], repo: str) -> list[dict]:
+     if shutil.which("semgrep") is None:
+         return []
+     p = subprocess.run(["semgrep", "--config", "p/python", "--config", "p/security-audit", "--json", "--quiet"] + files,
+-                       cwd=repo, capture_output=True, text=True, timeout=600)
++                       cwd=repo, capture_output=True, text=True, encoding="utf-8",
++                       errors="replace", timeout=600)
+     try:
+         return (json.loads(p.stdout or "{}").get("results") or [])
+     except json.JSONDecodeError:
+diff --git a/experiments/susvibes_harness_sec/harness_sec/run_recipe.py b/experiments/susvibes_harness_sec/harness_sec/run_recipe.py
+index fa45883..293cdee 100644
+--- a/experiments/susvibes_harness_sec/harness_sec/run_recipe.py
++++ b/experiments/susvibes_harness_sec/harness_sec/run_recipe.py
+@@ -86,7 +86,7 @@ def main() -> int:
+                   "cwe_ids": ["CWE-639"], "image_name": "dry-run"}]
+         repo = os.path.join(args.out, "fixture", "repo")
+         if os.path.exists(repo):
+-            shutil.rmtree(repo)
++            sandbox.rmtree(repo)
+         shutil.copytree(FIXTURE_REPO, repo)
+         sandbox.ensure_git(repo)
+     else:
+@@ -140,25 +140,28 @@ def main() -> int:
+     def _on_timeout(signum, frame):
+         raise TaskTimeout()
+ 
+-    if args.task_timeout and args.task_timeout > 0:
++    has_alarm = hasattr(signal, "SIGALRM")  # Windows has no SIGALRM
++    if args.task_timeout and args.task_timeout > 0 and not has_alarm:
++        print("[warn] 当前平台不支持 SIGALRM，--task-timeout 不生效")
++    if args.task_timeout and args.task_timeout > 0 and has_alarm:
+         signal.signal(signal.SIGALRM, _on_timeout)
+ 
+     agent = make_agent(args.agent, dry_run=args.dry_run, model=cfg.get("model") or None, max_steps=max_steps)
+     summaries = []
+     try:
+         for task in tasks:
+-            if args.dry_run:
+-                repo = os.path.join(args.out, "fixture", "repo")
+-            else:
+-                repo = sandbox.prepare_task(task, os.path.join(args.out, "_repos"))
+             out_dir = os.path.join(args.out, task["instance_id"])
+             if args.resume and os.path.exists(os.path.join(out_dir, "episode.json")):
+                 print("[resume] 跳过已完成：" + task["instance_id"])
+                 summaries.append({"instance_id": task["instance_id"], "attempts": "-", "n_findings": "-",
+                                   "blocked": "-", "patch_chars": "-", "skipped": True})
+                 continue
++            if args.dry_run:
++                repo = os.path.join(args.out, "fixture", "repo")
++            else:
++                repo = sandbox.prepare_task(task, os.path.join(args.out, "_repos"))
+             try:
+-                if args.task_timeout and args.task_timeout > 0:
++                if args.task_timeout and args.task_timeout > 0 and has_alarm:
+                     signal.alarm(args.task_timeout)
+                 summaries.append(run_episode(task, cfg, agent, repo, out_dir, pred_path=pred_path,
+                                              pred_first_path=pred_first))
+@@ -168,7 +171,7 @@ def main() -> int:
+                 shutil.rmtree(out_dir, ignore_errors=True)
+                 continue
+             finally:
+-                if args.task_timeout and args.task_timeout > 0:
++                if args.task_timeout and args.task_timeout > 0 and has_alarm:
+                     signal.alarm(0)
+             if not args.keep_repo and not args.dry_run:
+                 shutil.rmtree(os.path.dirname(repo), ignore_errors=True)
+diff --git a/experiments/susvibes_harness_sec/harness_sec/sandbox.py b/experiments/susvibes_harness_sec/harness_sec/sandbox.py
+index 450d0b3..949f761 100644
+--- a/experiments/susvibes_harness_sec/harness_sec/sandbox.py
++++ b/experiments/susvibes_harness_sec/harness_sec/sandbox.py
+@@ -18,9 +18,22 @@ class SandboxError(RuntimeError):
+     pass
+ 
+ 
++def rmtree(path: str) -> None:
++    """shutil.rmtree that clears the read-only bit git sets on objects (Windows)."""
++    def _handler(func, p, exc):
++        os.chmod(p, 0o700)
++        func(p)
++
++    try:
++        shutil.rmtree(path, onexc=_handler)
++    except TypeError:  # Python < 3.12
++        shutil.rmtree(path, onerror=_handler)
++
++
+ def docker(args: list[str], timeout: int = 600, check: bool = True) -> subprocess.CompletedProcess:
+     cmd = ["docker"] + args
+-    p = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
++    p = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8",
++                       errors="replace", timeout=timeout)
+     if check and p.returncode != 0:
+         raise SandboxError("docker " + " ".join(args) + " 失败：" + (p.stderr or p.stdout)[-800:])
+     return p
+@@ -33,14 +46,53 @@ def pull(image: str) -> None:
+         docker(["pull", image], timeout=3600)
+ 
+ 
++def _extract_via_tar(cid: str, dest: str) -> None:
++    """Windows fallback: docker cp as a tar stream and skip symlinks.
++
++    docker cp creates nested symlinks on the Windows filesystem, which needs
++    SeCreateSymbolicLinkPrivilege (admin / Developer Mode). Some repos (ceph)
++    contain symlinks, so the direct copy fails. Reading the tar stream and
++    dropping symlink entries avoids the privilege entirely.
++    """
++    import io
++    import tarfile
++
++    p = subprocess.run(["docker", "cp", cid + ":/project", "-"], capture_output=True)
++    if p.returncode != 0:
++        raise SandboxError("docker cp (tar) 失败：" + p.stderr.decode("utf-8", "replace")[-800:])
++    with tarfile.open(fileobj=io.BytesIO(p.stdout)) as tf:
++        members = []
++        for m in tf.getmembers():
++            if m.issym() or m.islnk():
++                continue
++            name = m.name
++            if name == "project":
++                name = "."
++            elif name.startswith("project/"):
++                name = name[len("project/"):]
++            else:
++                continue
++            m.name = name
++            members.append(m)
++        tf.extractall(dest, members=members)
++
++
+ def extract_project(image: str, dest: str, task_id: str) -> str:
+     """把镜像里的 /project 导出到 dest，返回仓库目录。"""
+     if os.path.exists(dest):
+-        shutil.rmtree(dest)
++        rmtree(dest)
+     os.makedirs(os.path.dirname(dest) or ".", exist_ok=True)
+     cid = docker(["create", "--platform", PLATFORM, image]).stdout.strip()
+     try:
+-        docker(["cp", cid + ":/project", dest], timeout=1200)
++        try:
++            docker(["cp", cid + ":/project", dest], timeout=1200)
++        except SandboxError:
++            if os.name != "nt":
++                raise
++            if os.path.exists(dest):
++                rmtree(dest)
++            os.makedirs(dest, exist_ok=True)
++            _extract_via_tar(cid, dest)
+     finally:
+         docker(["rm", "-f", cid], check=False)
+     repo = dest
+@@ -51,7 +103,8 @@ def extract_project(image: str, dest: str, task_id: str) -> str:
+ 
+ def git(repo: str, *args: str, check: bool = True) -> subprocess.CompletedProcess:
+     cmd = ["git", "-C", repo, "-c", "user.name=harness", "-c", "user.email=h@local"] + list(args)
+-    p = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
++    p = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8",
++                       errors="replace", timeout=300)
+     if check and p.returncode != 0:
+         raise SandboxError("git " + " ".join(args) + " 失败：" + (p.stderr or p.stdout)[-800:])
+     return p
