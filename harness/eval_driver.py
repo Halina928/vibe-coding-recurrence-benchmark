@@ -10,7 +10,7 @@ from dsh_engine import call_llm
 
 BENCHMARK_ROOT = Path(__file__).resolve().parent.parent
 CASES_DIR = BENCHMARK_ROOT / "cases"
-RESULTS_DIR = BENCHMARK_ROOT / "results"
+RESULTS_DIR = BENCHMARK_ROOT / "results" / "recurrence"
 WORKSPACES_DIR = BENCHMARK_ROOT / "workspaces"
 
 def extract_code_block(response_text: str, default_filename: str = "") -> str:

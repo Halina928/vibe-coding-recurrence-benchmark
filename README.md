@@ -4,13 +4,13 @@
 
 ## 实验报告
 
-[实验评测汇总](experiments/susvibes_harness_sec/results/README.md) 按统一格式列出评测范围、功能通过、安全通过及联合通过，并链接到逐项报告和原始数据。
+[实验结果目录](results/) 按 P1–P5 提供报告入口，并归档多轮安全回归结果。[统一评分表与统计口径](experiments/susvibes_harness_sec/results/README.md)
 
 ## 项目架构
 
 | 实验线 | 运行与配置 | 结果 |
 | --- | --- | --- |
-| 多轮安全回归 | [cases/](cases/) 定义场景和测试，[harness/](harness/) 负责模型调用与逐轮评测，[run_experiments.py](run_experiments.py) 提供批量入口 | [results/](results/) 保存逐轮结果，[workspaces/](workspaces/) 保存代码快照，[scripts/](scripts/) 提供汇总和绘图 |
+| 多轮安全回归 | [cases/](cases/) 定义场景和测试，[harness/](harness/) 负责模型调用与逐轮评测，[run_experiments.py](run_experiments.py) 提供批量入口 | [results/recurrence/](results/recurrence/) 保存逐轮结果，[workspaces/](workspaces/) 保存代码快照，[scripts/](scripts/) 提供汇总和绘图 |
 | SusVibes 主实验 | [机制层](experiments/susvibes_harness_sec/harness_sec/) 通过配方编排知识输入、质量检测和反馈控制，调用上游评测器 | [主实验报告及评测数据](experiments/susvibes_harness_sec/results/) |
 
 主实验中，[配方配置](experiments/susvibes_harness_sec/harness_sec/configs/) 选择要启用的机制，[编排器](experiments/susvibes_harness_sec/harness_sec/orchestrator.py) 依次运行知识输入、代理生成、质量检查和反馈控制，[评测入口](experiments/susvibes_harness_sec/harness_sec/evaluate.py) 将生成的补丁交给上游评测器。[机制层架构与调用链](experiments/susvibes_harness_sec/docs/ARCHITECTURE.md)

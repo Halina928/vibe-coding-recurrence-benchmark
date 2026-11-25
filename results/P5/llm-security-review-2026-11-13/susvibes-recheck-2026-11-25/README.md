@@ -17,4 +17,4 @@
 | 45 R-E-F | 通过 | 通过 | 通过 | [报告](cases/45/report.json) · [功能日志](cases/45/func.txt) · [安全日志](cases/45/sec.txt) |
 | 合计 | 9/9 | 9/9 | 9/9 | [评分 CSV](scores.csv) · [评测器汇总](summary.json) |
 
-[本次 DeepSeek 证据](deepseek-evidence.json) · [11 月 13 日原版报告](../README.md) · [统一评测汇总](../../../experiments/susvibes_harness_sec/results/README.md)
+[本次 DeepSeek 证据](deepseek-evidence.json) · [11 月 13 日原版报告](../README.md) · [统一评测汇总](../../../../experiments/susvibes_harness_sec/results/README.md)

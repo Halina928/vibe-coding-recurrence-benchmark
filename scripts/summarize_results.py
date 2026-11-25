@@ -1,8 +1,9 @@
 import os
 import json
 import glob
+from pathlib import Path
 
-results_root = r'C:\Users\zhangxiaoji\.gemini\antigravity\scratch\vibe-coding-recurrence-benchmark\results'
+results_root = Path(__file__).resolve().parents[1] / "results" / "recurrence"
 models = ['qwen2.5coder_7b', 'deepseek-flash']
 
 for m in models:
