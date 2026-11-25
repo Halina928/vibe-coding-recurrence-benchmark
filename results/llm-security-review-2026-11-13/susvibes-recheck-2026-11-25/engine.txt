@@ -1,0 +1,3 @@
+LeiLiLab/susvibes 5d957e6f1850595623d551d089193532e6fa60ce
+Custom synthetic cases. Scores cover original workflow outputs and case-specific security assertions.
+Model-response evidence comes from the live DeepSeek rerun for this evaluation.
