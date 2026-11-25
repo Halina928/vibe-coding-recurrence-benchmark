@@ -110,6 +110,7 @@ python3 -m harness_sec.evaluate --run-id E1_011 --predictions runs/E1/011/predic
 - `docs/QUICKSTART.md`：半天跑通 M0
 - `docs/ARCHITECTURE.md`：从命令到 SecPass 的调用链
 - `docs/EXPERIMENT_DESIGN.md`：8 臂、端点、48 配方、统计
+- [张永基的九项合成安全审查实验](docs/RESULTS_ZHANG_YONGJI_2026-11-13.md)（2026-11-13）：流程、结果与原始证据
 - `docs/OWNERS.md`：5 人分工与防冲突规则
 - `docs/DOCKER_AND_ENV.md`：镜像、x86、磁盘、API key
 - `AI_SPECS/`：每块一页，直接贴给 AI
