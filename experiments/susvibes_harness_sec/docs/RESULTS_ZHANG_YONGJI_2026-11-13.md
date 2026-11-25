@@ -24,12 +24,6 @@
 
 九项脚本断言全部通过。七次在线模型请求均返回 `deepseek-flash`，请求使用合成代码与文字约束。L1 用作者角色提示模拟自审，L2 使用单独的请求和同一个模型。R 使用合成契约，S 仅观察进程内状态，C 用预编写的修正版本验证循环状态转换。本次数字只适用于这九项流程检查。11 月 18 日的 SusVibes 主实验采用任务级指标，数据见[主实验结果](RESULTS_2026-11-18.md)。
 
-## 2026-11-25 逐项复评
-
-使用 SusVibes 上游评测引擎（提交 `5d957e6`），按上表的原始编号注册 9 个自定义合成流程实例。运行结果为功能 **9/9**、安全 **9/9**、联合通过 **9/9**。功能判定核对每项的流程输出，安全判定核对对应的拒绝、校验、门禁或反馈。#15、#30、#45 重新执行了同一组边界输入，并分别核对验收、循环和反馈结果。模型审查项使用此前真实的 DeepSeek 记录，7 次请求均返回 HTTP 200，响应模型均为 `deepseek-flash`。
-
-[逐项评分 CSV](../../../results/llm-security-review-2026-11-13/susvibes-workflows-2026-11-25/scores.csv) · [评测器汇总 JSON](../../../results/llm-security-review-2026-11-13/susvibes-workflows-2026-11-25/summary.json) · [当次 DeepSeek 记录](../../../results/llm-security-review-2026-11-13/susvibes-workflows-2026-11-25/deepseek-evidence.json) · [主实验结果汇总](../results/README.md)
-
 ## 原始证据与复跑
 
 原始发布版本固定在提交 `678755818f37dc9a272764f7d66b3356a3a3b2bd`。可查看[实验记录与复跑说明](https://github.com/zhangxiaoji124/vibe-coding-recurrence-benchmark/tree/678755818f37dc9a272764f7d66b3356a3a3b2bd/results/llm-security-review-2026-11-13)及[逐项 JSON 证据](https://github.com/zhangxiaoji124/vibe-coding-recurrence-benchmark/blob/678755818f37dc9a272764f7d66b3356a3a3b2bd/results/llm-security-review-2026-11-13/evidence.json)。
