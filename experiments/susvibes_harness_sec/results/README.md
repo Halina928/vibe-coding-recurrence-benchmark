@@ -1,12 +1,12 @@
 # 实验评测汇总
 
-| 实验 | 评测范围 | 配方或实例 | FuncPass | SecPass | Joint | 报告与数据 |
-| --- | --- | --- | ---: | ---: | ---: | --- |
-| P1 | SusVibes · 10 配方 × 8 任务，另有无机制对照 | 21 / 31 / 26 | 7/8 / 6/8 / 5/8 | 各 2/8 | 各 2/8 | [报告](P1/REPORT.md) · [CSV](P1/results.csv) · [原始报告](P1/eval_reports/) |
-| P2 | SusVibes · 10 配方 × 8 任务 | 22 / 27 / 32 / 17 | 6/8 / 6/8 / 5/8 / 4/8 | 各 2/8 | 各 2/8 | [报告](P2/REPORT.md) · [CSV](P2/results.csv) · [原始报告](P2/eval_reports/) |
-| P3 | 模型审查和静态检测 | 暂无报告 | — | — | — | [分工记录](../docs/OWNERS.md) |
-| P4 | SusVibes · 9 配方 × 7 任务，Windows 试验 | 39 / 19 / 24 / 29 | 5/7 / 4/7 / 3/7 / 2/7 | 各 1/7 | 各 1/7 | [报告](P4/REPORT.md) · [CSV](P4/results.csv) · [原始报告](P4/eval_reports/) |
-| P5 | 原版合成库存函数 `reserve(count)`，9 项流程断言通过 | 05 G-L2-F、10 G-P-C、15 G-E-A、20 T-L1-S、25 T-P-F、30 T-E-C、35 R-L1-A、40 R-L2-S、45 R-E-F | — | — | — | [分工配方](../data/recipe_assignment.md) · [原版报告](../../../results/llm-security-review-2026-11-13/README.md) · [原始证据](../../../results/llm-security-review-2026-11-13/evidence.json) |
+| 实验 | 评测范围 | 配方或实例 | FuncPass | SecPass | Joint | 流程断言通过率 | 报告与数据 |
+| --- | --- | --- | ---: | ---: | ---: | ---: | --- |
+| P1 | SusVibes · 10 配方 × 8 任务，另有无机制对照 | 21 / 31 / 26 | 7/8 / 6/8 / 5/8 | 各 2/8 | 各 2/8 | — | [报告](P1/REPORT.md) · [CSV](P1/results.csv) · [原始报告](P1/eval_reports/) |
+| P2 | SusVibes · 10 配方 × 8 任务 | 22 / 27 / 32 / 17 | 6/8 / 6/8 / 5/8 / 4/8 | 各 2/8 | 各 2/8 | — | [报告](P2/REPORT.md) · [CSV](P2/results.csv) · [原始报告](P2/eval_reports/) |
+| P3 | 模型审查和静态检测 | 暂无报告 | — | — | — | — | [分工记录](../docs/OWNERS.md) |
+| P4 | SusVibes · 9 配方 × 7 任务，Windows 试验 | 39 / 19 / 24 / 29 | 5/7 / 4/7 / 3/7 / 2/7 | 各 1/7 | 各 1/7 | — | [报告](P4/REPORT.md) · [CSV](P4/results.csv) · [原始报告](P4/eval_reports/) |
+| P5 | 原版合成库存函数 `reserve(count)` · 9 项流程检查 | 05 G-L2-F、10 G-P-C、15 G-E-A、20 T-L1-S、25 T-P-F、30 T-E-C、35 R-L1-A、40 R-L2-S、45 R-E-F | — | — | — | **9/9（100%）** | [分工配方](../data/recipe_assignment.md) · [原版报告](../../../results/llm-security-review-2026-11-13/README.md) · [原始证据](../../../results/llm-security-review-2026-11-13/evidence.json) |
 
 ## 评测口径
 
