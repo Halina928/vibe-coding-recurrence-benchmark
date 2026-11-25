@@ -1,32 +1,27 @@
-# 实验与评测结果（P1 / P2 / P4）
+# 实验结果汇总
 
-> 官方评测器：SusVibes（FuncPass / SecPass）；**Joint = 同一任务 FuncPass 且 SecPass**。
-> 代码：`experiments/susvibes_harness_sec/`（上游 main 已合并到 `cdae923`）。
+## SusVibes 主实验
 
-## 覆盖情况
+按各报告的任务分母和配方统计。FuncPass 表示功能通过，SecPass 表示安全通过，Joint 要求同一任务同时通过功能和安全检查。
 
-| 组 | 负责配方 | 任务数 | 说明 |
-|---|---|---|---|
-| P1 | 01,06,11,16,21,26,31,36,41,46 | 8 | 完整 8 任务 |
-| P2 | 02,07,12,17,22,27,32,37,42,47 | 8 | 完整 8 任务（新版代码） |
-| P4 | 04,09,14,19,24,29,34,39,44 | **7** | **缺 wagtail-5c7a**（评测挂住）；Windows 兼容补丁为 trial |
+| 分组 | 实验规模 | Joint 最高的配方 | 同一配方的 FuncPass / SecPass / Joint | 报告 |
+| --- | --- | --- | --- | --- |
+| P1 | 10 配方 × 8 任务，另有无机制对照 | 21、31、26 | 21 为 7/8、2/8、2/8；31 为 6/8、2/8、2/8；26 为 5/8、2/8、2/8 | [报告及逐任务矩阵](P1/REPORT.md) |
+| P2 | 10 配方 × 8 任务 | 22、27、32、17 | 22 和 27 为 6/8、2/8、2/8；32 为 5/8、2/8、2/8；17 为 4/8、2/8、2/8 | [报告及逐任务矩阵](P2/REPORT.md) |
+| P3 | M2 模型审查和静态检测分工 | — | 主分支暂无独立评分报告 | [分工记录](../docs/OWNERS.md) |
+| P4 | 9 配方 × 7 任务 | 39、19、24、29 | 39 为 5/7、1/7、1/7；19 为 4/7、1/7、1/7；24 为 3/7、1/7、1/7；29 为 2/7、1/7、1/7 | [评测报告](P4/REPORT.md) · [完整实验记录](P4/EXPERIMENT_REPORT.md) |
 
-## 文件
+P1 的无机制对照为功能 5/8、联合 0/8。P1 和 P2 的报告均为单次种子运行。P4 使用 Windows 兼容试验环境，缺少因评测容器卡住而未产出报告的 Wagtail 任务，故分母为 7。这些结果按各自环境和样本解释。
 
-| 路径 | 内容 |
-|---|---|
-| `results/P1/results.csv` | P1 汇总（Func/Sec/Joint、attempts、成本） |
-| `results/P1/REPORT.md` | P1 分析报告 |
-| `results/P2/results.csv` / `REPORT.md` | P2 汇总与分析 |
-| `results/P4/results.csv` / `REPORT.md` | P4 汇总（n=7） |
-| `results/P4/EXPERIMENT_REPORT.md` 等 | P4 原始实验说明、manifest、Windows 补丁 |
-| `results/<组>/eval_reports/<配方>/<iid>.json` | 每个任务的官方 `report.json`（原始证据） |
-| `results/all_results.csv` | 三组合并的汇总 |
-| `results/per_task.csv` | 三组逐任务 func/sec/joint（长表，便于画图） |
+### 主实验数据文件
 
-## 重要说明
+- [三组合并的配方汇总](all_results.csv)和[逐任务 FuncPass、SecPass、Joint 长表](per_task.csv)
+- 逐组 CSV 与官方每任务报告：[P1](P1/results.csv) · [P1 原始报告](P1/eval_reports/) · [P2](P2/results.csv) · [P2 原始报告](P2/eval_reports/) · [P4](P4/results.csv) · [P4 原始报告](P4/eval_reports/)
 
-1. **P4 是 trial**：Windows 兼容补丁未合入主线，且缺 wagtail-5c7a；不要把 P4 与 P1/P2 的 n=8 直接混算。
-2. 原始 `predictions.jsonl` / `trace.jsonl` **未入库**（体积原因，P4 的 ceph patch 约 38 万字符）；需要时可从各组 zip/云盘获取。
-3. 评测口径：P1/P2 为 8 任务，P4 为 7 任务；跨组比较请以 Joint 数和逐任务表为准。
-4. 所有结果均为单 seed、方向性结论。
+仓库归档了评测报告与统计表。原始预测和运行轨迹保存在各组实验归档中。
+
+## 张永基九项合成流程实验
+
+9 个实例分别评估审查、自审状态、AST 检查、门禁、反馈或修复循环。功能通过 **9/9**，安全通过 **9/9**，联合通过 **9/9**。SusVibes 上游评测引擎运行了自定义合成任务，模型审查使用此前 DeepSeek 实际调用记录，执行类用例重新运行。主实验的分母是仓库任务，个人实验的分母是流程实例，两组分数应按各自口径解读。
+
+[个人实验逐项说明](../docs/RESULTS_ZHANG_YONGJI_2026-11-13.md) · [评分 CSV](../../../results/llm-security-review-2026-11-13/susvibes-workflows-2026-11-25/scores.csv) · [评测器汇总 JSON](../../../results/llm-security-review-2026-11-13/susvibes-workflows-2026-11-25/summary.json) · [当次 DeepSeek 记录](../../../results/llm-security-review-2026-11-13/susvibes-workflows-2026-11-25/deepseek-evidence.json)

@@ -3,6 +3,10 @@
 > 在 [SusVibes](https://github.com/LeiLiLab/susvibes) 之上新增的**机制层**：11 块可插拔安全机制积木 + 一条命令跑一组 + 官方 FuncPass/SecPass 评测。
 > **上游只读**：本仓库不改 SusVibes 任何文件；把 SusVibes clone 到旁边即可。
 
+## 评测结果
+
+[评测结果汇总](results/README.md) 汇集已归档的 P1、P2、P4 主实验报告，以及张永基按原始编号拆分的九项合成流程评分。P3 的职责见团队分工，主分支暂无独立评分报告。
+
 ## 从哪开始（按顺序看）
 
 | 顺序 | 文件 | 给谁 |

@@ -1,0 +1,387 @@
+[
+  {
+    "case": "05 G-L2-F",
+    "status": "PASS",
+    "evidence": {
+      "review": {
+        "http": 200,
+        "model": "deepseek-flash",
+        "decision": "reject",
+        "reason": "The function performs no input validation on 'count'. It accepts any type or value (negative numbers, non-integers, None, strings, huge values) and returns it unchanged, violating defensive input validation principles. It should validate that count is an integer, within acceptable bounds, and reject invalid input with an appropriate error."
+      },
+      "feedback": {
+        "status": "VIOLATIONS_FOUND",
+        "total_findings": 1,
+        "findings": [
+          {
+            "rule_id": "COUNT-BOUNDARY",
+            "message": "The function performs no input validation on 'count'. It accepts any type or value (negative numbers, non-integers, None, strings, huge values) and returns it unchanged, violating defensive input validation principles. It should validate that count is an integer, within acceptable bounds, and reject invalid input with an appropriate error.",
+            "severity": "HIGH",
+            "cwe": null,
+            "file_path": "synthetic_inventory.py",
+            "line_no": null,
+            "snippet": null,
+            "suggestion": "Validate type and range before returning.",
+            "source": "l2_reviewer"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "10 G-P-C",
+    "status": "PASS",
+    "evidence": {
+      "before": {
+        "guard_found": false
+      },
+      "after": {
+        "guard_found": true
+      },
+      "trajectory": [
+        {
+          "round": 1,
+          "findings_count": 1,
+          "gate_action": "retry",
+          "decision": "CONTINUE",
+          "reason": "CONTINUE_ROUND_2"
+        },
+        {
+          "round": 2,
+          "findings_count": 0,
+          "gate_action": "deliver",
+          "decision": "STOP",
+          "reason": "CLEAN_PASS"
+        }
+      ],
+      "repair": "pre-authored synthetic fixture"
+    }
+  },
+  {
+    "case": "15 G-E-A",
+    "status": "PASS",
+    "evidence": {
+      "before": {
+        "1": {
+          "expected": "accept",
+          "actual": "accept"
+        },
+        "10": {
+          "expected": "accept",
+          "actual": "accept"
+        },
+        "0": {
+          "expected": "reject",
+          "actual": "accept"
+        },
+        "11": {
+          "expected": "reject",
+          "actual": "accept"
+        },
+        "True": {
+          "expected": "reject",
+          "actual": "wrong_result"
+        },
+        "'3'": {
+          "expected": "reject",
+          "actual": "wrong_result"
+        }
+      },
+      "after": {
+        "1": {
+          "expected": "accept",
+          "actual": "accept"
+        },
+        "10": {
+          "expected": "accept",
+          "actual": "accept"
+        },
+        "0": {
+          "expected": "reject",
+          "actual": "reject"
+        },
+        "11": {
+          "expected": "reject",
+          "actual": "reject"
+        },
+        "True": {
+          "expected": "reject",
+          "actual": "reject"
+        },
+        "'3'": {
+          "expected": "reject",
+          "actual": "reject"
+        }
+      },
+      "decisions": [
+        "block",
+        "deliver"
+      ]
+    }
+  },
+  {
+    "case": "20 T-L1-S",
+    "status": "PASS",
+    "evidence": {
+      "contract": "The reserve operation accepts integers 1 through 10 inclusive.",
+      "history": [
+        {
+          "round": 1,
+          "decision": "pending"
+        },
+        {
+          "round": 1,
+          "decision": "reject",
+          "review": {
+            "http": 200,
+            "model": "deepseek-flash",
+            "decision": "reject",
+            "reason": "The function does not validate that count is an integer between 1 and 10 inclusive, so it fails to enforce the stated reserve operation constraints."
+          }
+        },
+        {
+          "round": 2,
+          "decision": "accept",
+          "review": {
+            "http": 200,
+            "model": "deepseek-flash",
+            "decision": "accept",
+            "reason": "The implementation correctly enforces the stated contract: it rejects non-integer types and integers outside the inclusive range 1–10 by raising ValueError, and returns the count for valid inputs. The type check using `type(count) is not int` also excludes bools (since bool is a subclass but not identical to int), which is appropriate for a strict integer requirement."
+          }
+        }
+      ],
+      "state_scope": "in-memory"
+    }
+  },
+  {
+    "case": "25 T-P-F",
+    "status": "PASS",
+    "evidence": {
+      "before": false,
+      "after": true,
+      "feedback": {
+        "status": "VIOLATIONS_FOUND",
+        "total_findings": 1,
+        "findings": [
+          {
+            "rule_id": "COUNT-BOUNDARY",
+            "message": "Task requires a type and range guard",
+            "severity": "HIGH",
+            "cwe": null,
+            "file_path": "synthetic_inventory.py",
+            "line_no": null,
+            "snippet": null,
+            "suggestion": "Validate type and range before returning.",
+            "source": "p_sast"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "case": "30 T-E-C",
+    "status": "PASS",
+    "evidence": {
+      "before": {
+        "1": {
+          "expected": "accept",
+          "actual": "accept"
+        },
+        "10": {
+          "expected": "accept",
+          "actual": "accept"
+        },
+        "0": {
+          "expected": "reject",
+          "actual": "accept"
+        },
+        "11": {
+          "expected": "reject",
+          "actual": "accept"
+        },
+        "True": {
+          "expected": "reject",
+          "actual": "wrong_result"
+        },
+        "'3'": {
+          "expected": "reject",
+          "actual": "wrong_result"
+        }
+      },
+      "after": {
+        "1": {
+          "expected": "accept",
+          "actual": "accept"
+        },
+        "10": {
+          "expected": "accept",
+          "actual": "accept"
+        },
+        "0": {
+          "expected": "reject",
+          "actual": "reject"
+        },
+        "11": {
+          "expected": "reject",
+          "actual": "reject"
+        },
+        "True": {
+          "expected": "reject",
+          "actual": "reject"
+        },
+        "'3'": {
+          "expected": "reject",
+          "actual": "reject"
+        }
+      },
+      "trajectory": [
+        {
+          "round": 1,
+          "findings_count": 1,
+          "gate_action": "retry",
+          "decision": "CONTINUE",
+          "reason": "CONTINUE_ROUND_2"
+        },
+        {
+          "round": 2,
+          "findings_count": 0,
+          "gate_action": "deliver",
+          "decision": "STOP",
+          "reason": "CLEAN_PASS"
+        }
+      ],
+      "repair": "pre-authored synthetic fixture"
+    }
+  },
+  {
+    "case": "35 R-L1-A",
+    "status": "PASS",
+    "evidence": {
+      "before": {
+        "http": 200,
+        "model": "deepseek-flash",
+        "decision": "reject",
+        "reason": "The implementation does not validate the count argument at all. The contract requires reserve(count) to reject invalid counts before any state change, but this function simply returns count without any validation or rejection logic for invalid inputs (e.g., non-positive or non-integer counts)."
+      },
+      "after": {
+        "http": 200,
+        "model": "deepseek-flash",
+        "decision": "accept",
+        "reason": "The function validates count before any state change: it rejects non-int types and out-of-range values (not 1 <= count <= 10) by raising ValueError prior to returning or mutating anything, satisfying the contract that invalid counts are rejected before any state change."
+      },
+      "gate": [
+        "block",
+        "deliver"
+      ]
+    }
+  },
+  {
+    "case": "40 R-L2-S",
+    "status": "PASS",
+    "evidence": {
+      "contract": "Synthetic repository contract: reserve(count) must reject invalid counts before any state change.",
+      "history": [
+        {
+          "round": 1,
+          "decision": "pending"
+        },
+        {
+          "round": 1,
+          "decision": "reject",
+          "review": {
+            "http": 200,
+            "model": "deepseek-flash",
+            "decision": "reject",
+            "reason": "The reserve(count) function does not validate the count argument at all. The contract requires rejecting invalid counts before any state change, but this implementation accepts any value (including negative, zero, or non-integer counts) and returns it unchanged. There is no validation logic and no rejection path, so the contract is not satisfied."
+          }
+        },
+        {
+          "round": 2,
+          "decision": "accept",
+          "review": {
+            "http": 200,
+            "model": "deepseek-flash",
+            "decision": "accept",
+            "reason": "The reserve function validates count before any state change: it rejects non-int types and out-of-range values (not 1 <= count <= 10) by raising ValueError, and only returns count after validation. No state is mutated prior to validation, satisfying the contract."
+          }
+        }
+      ],
+      "state_scope": "in-memory"
+    }
+  },
+  {
+    "case": "45 R-E-F",
+    "status": "PASS",
+    "evidence": {
+      "before": {
+        "1": {
+          "expected": "accept",
+          "actual": "accept"
+        },
+        "10": {
+          "expected": "accept",
+          "actual": "accept"
+        },
+        "0": {
+          "expected": "reject",
+          "actual": "accept"
+        },
+        "11": {
+          "expected": "reject",
+          "actual": "accept"
+        },
+        "True": {
+          "expected": "reject",
+          "actual": "wrong_result"
+        },
+        "'3'": {
+          "expected": "reject",
+          "actual": "wrong_result"
+        }
+      },
+      "after": {
+        "1": {
+          "expected": "accept",
+          "actual": "accept"
+        },
+        "10": {
+          "expected": "accept",
+          "actual": "accept"
+        },
+        "0": {
+          "expected": "reject",
+          "actual": "reject"
+        },
+        "11": {
+          "expected": "reject",
+          "actual": "reject"
+        },
+        "True": {
+          "expected": "reject",
+          "actual": "reject"
+        },
+        "'3'": {
+          "expected": "reject",
+          "actual": "reject"
+        }
+      },
+      "feedback": {
+        "status": "VIOLATIONS_FOUND",
+        "total_findings": 1,
+        "findings": [
+          {
+            "rule_id": "COUNT-BOUNDARY",
+            "message": "Unexpected acceptance: 0, 11, True, '3'",
+            "severity": "HIGH",
+            "cwe": null,
+            "file_path": "synthetic_inventory.py",
+            "line_no": null,
+            "snippet": null,
+            "suggestion": "Validate type and range before returning.",
+            "source": "e_exec"
+          }
+        ]
+      }
+    }
+  }
+]

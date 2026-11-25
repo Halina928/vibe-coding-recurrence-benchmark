@@ -1,8 +1,8 @@
-# experiments/
+# 实验入口
 
-| 目录 | 内容 | 状态 |
-|---|---|---|
-| [susvibes_harness_sec/](susvibes_harness_sec/) | 在 SusVibes 外部基准上比较 11 个安全机制积木的 8 臂 / 48 组组合（FuncPass / SecPass） | 准备完成，2026-11-14 冻结任务集 |
+| 实验 | 入口 | 结果 |
+| --- | --- | --- |
+| 多轮安全回归 | [根目录配置与测试](../docs/TESTING.md) | [逐轮结果](../results/) |
+| SusVibes 安全机制 | [机制层 README](susvibes_harness_sec/README.md) | [P1/P2/P4 主实验与张永基九项合成评测汇总](susvibes_harness_sec/results/README.md) |
 
-- 实验一（安全回归 benchmark）仍在根目录 `cases/` + `harness/` + `run_experiments.py`。
-- 本目录的实验需要**外部依赖**（SusVibes 仓库、Docker、API key），与实验一互不影响。
+P3 的当前分工见 [团队分工](susvibes_harness_sec/docs/OWNERS.md)，主分支暂无其独立评分报告。
