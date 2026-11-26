@@ -1,6 +1,7 @@
 import os
 import json
 import glob
+from pathlib import Path
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
@@ -12,7 +13,7 @@ plt.rcParams['font.sans-serif'] = ['DejaVu Sans', 'Arial', 'SimHei', 'Microsoft 
 plt.rcParams['axes.unicode_minus'] = False
 plt.rcParams['mathtext.fontset'] = 'cm'
 
-results_root = r'C:\Users\zhangxiaoji\.gemini\antigravity\scratch\vibe-coding-recurrence-benchmark\results'
+results_root = Path(__file__).resolve().parents[1] / "results" / "recurrence"
 output_dir = os.path.join(results_root, 'visuals')
 os.makedirs(output_dir, exist_ok=True)
 

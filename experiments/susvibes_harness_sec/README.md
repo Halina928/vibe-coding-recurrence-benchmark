@@ -3,6 +3,10 @@
 > 在 [SusVibes](https://github.com/LeiLiLab/susvibes) 之上新增的**机制层**：11 块可插拔安全机制积木 + 一条命令跑一组 + 官方 FuncPass/SecPass 评测。
 > **上游只读**：本仓库不改 SusVibes 任何文件；把 SusVibes clone 到旁边即可。
 
+## 评测结果
+
+[实验评测汇总](results/README.md) 包含各组的评测范围、评分、报告与原始数据。
+
 ## 从哪开始（按顺序看）
 
 | 顺序 | 文件 | 给谁 |

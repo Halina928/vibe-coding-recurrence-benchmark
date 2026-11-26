@@ -21,7 +21,7 @@ try {
 }
 ```
 
-预期显示 5 个测试并输出 `OK`。这条命令验证该代码样本的功能，安全检查结果可在对应的 [逐轮 JSON](../results/qwen2.5coder_7b/case2_cwe89_sql_query.json) 中查看。
+预期显示 5 个测试并输出 `OK`。这条命令验证该代码样本的功能，安全检查结果可在对应的 [逐轮 JSON](../results/recurrence/qwen2.5coder_7b/case2_cwe89_sql_query.json) 中查看。
 
 ## 模型配置
 
@@ -43,4 +43,4 @@ Test-NetConnection 127.0.0.1 -Port 11434 -InformationLevel Quiet
 
 每个结果文件对应一个模型和场景。逐轮优先看 `func_pass`（功能测试）、`probe_pass`（安全检查）和 `latency_s`（耗时）。结合前后轮的检查记录解释 `recurrence_status`，区分持续失败和通过后再次失败。
 
-仓库已包含 [PDF 图表](../results/visuals/recurrence_benchmark_report.pdf)。现有汇总和绘图脚本使用原作者机器上的绝对路径；在其他目录运行前需调整脚本内的 `results_root`。绘图脚本还依赖 NumPy 和 Matplotlib，且部分图表标注与计数是固定值。用新结果做报告时应以逐轮 JSON 为准。
+仓库已包含 [PDF 图表](../results/recurrence/visuals/recurrence_benchmark_report.pdf)。汇总和绘图脚本从仓库的 `results/recurrence/` 读取结果。绘图脚本还依赖 NumPy 和 Matplotlib，且部分图表标注与计数是固定值。用新结果做报告时应以逐轮 JSON 为准。

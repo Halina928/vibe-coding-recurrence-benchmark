@@ -1,32 +1,23 @@
 # Vibe Coding Recurrence Benchmark
 
-这个项目评估 AI 辅助代码修改中的安全回归。模型先修复一个已知问题，再按轮次修改同一份代码。评测分别记录功能测试和安全检查的结果，用来观察后续功能开发是否破坏原有防护，以及新增入口是否遗漏同一条安全约束。
+这个仓库研究 AI 辅助代码修改中的安全回归，以及安全审查、验收门禁和修复循环对代码交付的影响。仓库包含多轮回归基准及 SusVibes 安全机制实验。
 
-## 项目现状
+## 实验报告
 
-- 场景覆盖路径穿越、SQL 注入、命令注入、跨站脚本（XSS）、服务端请求伪造（SSRF）和不安全反序列化。
-- 仓库包含 12 份已保存的模型与场景结果。Qwen2.5-Coder 7B 有 6 份，DeepSeek Flash 有 5 份，DeepSeek Chat 有 1 份。
-- 现有记录适合查看个别场景的逐轮变化。模型覆盖和重复运行次数仍需补齐，才能做整体模型比较。
-- 当前的复发标签依据失败检查属于旧入口还是新入口生成。分析旧入口回归时，需要额外确认同一检查此前通过过。
+[实验结果目录](results/) 按 P1–P5 提供报告入口，并归档多轮安全回归结果。[统一评分表与统计口径](experiments/susvibes_harness_sec/results/README.md)
 
-## 目录
+## 项目架构
 
-| 目录或文件 | 用途 |
-| --- | --- |
-| [cases/](cases/) | 场景配置、起始代码和测试 |
-| [harness/](harness/) | 模型调用、评测和结果记录 |
-| [run_experiments.py](run_experiments.py) | 批量实验入口，当前默认包含前五个场景 |
-| [results/](results/) | 已保存的逐轮 JSON 结果和图表 |
-| [workspaces/](workspaces/) | 已保存的模型输出代码和测试副本 |
-| [scripts/](scripts/) | 结果汇总和绘图脚本 |
-| [experiments/](experiments/) | 第二阶段：SusVibes 外部基准上的安全机制实验（8 臂 / 48 组） |
+| 实验线 | 运行与配置 | 结果 |
+| --- | --- | --- |
+| 多轮安全回归 | [cases/](cases/) 定义场景和测试，[harness/](harness/) 负责模型调用与逐轮评测，[run_experiments.py](run_experiments.py) 提供批量入口 | [results/recurrence/](results/recurrence/) 保存逐轮结果，[workspaces/](workspaces/) 保存代码快照，[scripts/](scripts/) 提供汇总和绘图 |
+| SusVibes 主实验 | [机制层](experiments/susvibes_harness_sec/harness_sec/) 通过配方编排知识输入、质量检测和反馈控制，调用上游评测器 | [主实验报告及评测数据](experiments/susvibes_harness_sec/results/) |
 
-从 [配置与测试](docs/TESTING.md) 开始。离线功能测试无需模型服务或 API 密钥。
+主实验中，[配方配置](experiments/susvibes_harness_sec/harness_sec/configs/) 选择要启用的机制，[编排器](experiments/susvibes_harness_sec/harness_sec/orchestrator.py) 依次运行知识输入、代理生成、质量检查和反馈控制，[评测入口](experiments/susvibes_harness_sec/harness_sec/evaluate.py) 将生成的补丁交给上游评测器。[机制层架构与调用链](experiments/susvibes_harness_sec/docs/ARCHITECTURE.md)
 
-## 第二阶段实验（SusVibes 安全机制）
+多轮回归基准的历史记录适合分析个别场景的逐轮变化。比较模型整体表现还需要匹配场景覆盖和重复次数。判断旧入口是否回归时，需要确认同一检查在此前轮次已通过。
 
-`experiments/susvibes_harness_sec/` 是另一条独立实验线：在 SusVibes 的 186 个真实仓库任务上，比较 11 个安全机制积木（知识输入 / 质量检测 / 反馈与控制）的 8 臂因子组合与 48 组配方，用官方 FuncPass / SecPass 评测。
+## 运行入口
 
-它与根目录的 `cases/`、`harness/` 互不影响，但需要额外：**clone SusVibes、安装 Docker、自己的 DeepSeek API key**。
-
-从 [experiments/susvibes_harness_sec/docs/GROUP_BRIEF.md](experiments/susvibes_harness_sec/docs/GROUP_BRIEF.md) 开始。
+- 多轮回归的配置、测试和结果解释见 [配置与测试](docs/TESTING.md)。离线功能测试无需模型服务。
+- SusVibes 主实验的 Docker、上游仓库和模型服务配置见 [实验手册](experiments/susvibes_harness_sec/docs/RUNBOOK.md)。
